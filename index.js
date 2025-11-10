@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 //model import
 const ConnectModel = require("./Models/post");
 const RegisterModel = require("./Models/user");
@@ -88,10 +90,12 @@ app.post("/login", (req, res) => {
           if (!ismatch) {
             return res.json("Wrong password");
           }
+          const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "30d" });
           return res.json({
             message: "Login success",
             name: user.name,
             email: user.email,
+            token: token,
           });
         });
       }
