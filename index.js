@@ -141,7 +141,11 @@ require("dotenv").config();
 const ConnectModel = require("./Models/post");
 const RegisterModel = require("./Models/user");
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://grads-link-frontend.vercel.app",
+  })
+);
 app.use(express.json());
 
 //mdb
