@@ -292,7 +292,7 @@ app.post("/google", async (req, res) => {
       if (!user) {
         RegisterModel.create({ name: name, email: email, sub: sub, picture: picture });
       }
-      const token = jwt.sign({ id: user._id }, process.env.GOOGLE_CLIENT_ID, { expiresIn: "30d" });
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "30d" });
       res.json({ message: "Login Success", name: name, email: email, token });
     })
     .catch((err) => res.json(err));
