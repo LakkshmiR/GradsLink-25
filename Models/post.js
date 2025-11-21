@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const ConnectSchema = new mongoose.Schema({
   companyName: String,
   jobrole: String,
-  experience: String,
   link: String,
   postedAt: {
     type: Date,
