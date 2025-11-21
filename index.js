@@ -287,14 +287,14 @@ app.post("/google", async (req, res) => {
   });
   const payload = ticket.getPayload();
   const { name, email, sub, picture } = payload;
-  RegisterModel.findOne({ email }).then((user) => {
-    if (!user) {
-      RegisterModel.create({ name: name, email: email, sub: sub, picture: picture });
-    }
-    const token = jwt.sign({ id: user._id }, process.env.GOOGLE_CLIENT_ID, { expiresIn: "30d" });
-  });
-  res
-    .json({ message: "Login Success", name: name, email: email, token })
+  RegisterModel.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        RegisterModel.create({ name: name, email: email, sub: sub, picture: picture });
+      }
+      const token = jwt.sign({ id: user._id }, process.env.GOOGLE_CLIENT_ID, { expiresIn: "30d" });
+      res.json({ message: "Login Success", name: name, email: email, token });
+    })
     .catch((err) => res.json(err));
 });
 
