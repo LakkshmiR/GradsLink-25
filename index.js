@@ -164,14 +164,14 @@ mongoose
 app.post("/add", (req, res) => {
   const companyName = req.body.companyName;
   const jobrole = req.body.jobrole;
-  const experience = req.body.experience;
+  // const experience = req.body.experience;
   const link = req.body.link;
   const postedBy = req.body.postedBy;
   console.log(companyName);
   ConnectModel.create({
     companyName: companyName,
     jobrole: jobrole,
-    experience: experience,
+    // experience: experience,
     link: link,
     postedBy: postedBy,
   })
