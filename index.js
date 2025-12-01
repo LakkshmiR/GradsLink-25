@@ -689,6 +689,17 @@ app.post("/updatereferrallb", async (req, res) => {
     return res.json({ error: err.message });
   }
 });
-app.listen(3000, () => {
+
+//port-lh
+// app.listen(3000, () => {
+//   console.log("Server is Running");
+// });
+
+//port-render
+app.get("/", (req, res) => {
+  res.send("Server is running!");
+});
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
   console.log("Server is Running");
 });
