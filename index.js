@@ -318,7 +318,7 @@ const leaderboardModel = require("./Models/leaderboard");
 const { OAuth2Client } = require("google-auth-library");
 const app = express();
 //cors lh
-app.use(cors());
+// app.use(cors());
 
 //cors render
 app.use(
@@ -359,10 +359,7 @@ app.post("/add", async (req, res) => {
       experience: experience,
       link: link,
       postedBy: postedBy,
-      numJobPosts: 0,
     });
-
-    await ConnectModel.updateMany({ postedBy: postedBy }, { $inc: { numJobPosts: 1 } });
 
     await leaderboardModel.updateOne({ email: email }, [
       {
@@ -566,14 +563,14 @@ app.post("/createlb", async (req, res) => {
 
     if (!lbdata) {
       await leaderboardModel.create({
-        rank: 1,
+        rank: null,
         name: name,
         numJobPosts: 0,
         dailyStreak: 1,
         referrals: 0,
         totalPoints: 0 * 10 + 1 * 5 + 0 * 25,
         email: loggedinEmail,
-        openDate: new Date(),
+        openDate: "2025-12-02",
       });
       return res.json({ message: "created lb success" });
     }
@@ -623,10 +620,10 @@ app.post("/updateStreak", async (req, res) => {
         { $set: { openDate: new Date() } }
       );
       // await leaderboardModel.updateOne({ email: loggedinEmail }, { $inc: { dailyStreak: 1 } });
-      await leaderboardModel.updateOne({ email: email }, [
+      await leaderboardModel.updateOne({ email: loggedinEmail }, [
         {
           $set: {
-            dailyStreak: { $add: ["dailyStreak", 1] },
+            dailyStreak: { $add: ["$dailyStreak", 1] },
             totalPoints: {
               $add: [
                 { $multiply: [{ $add: ["$dailyStreak", 1] }, 5] },
@@ -641,7 +638,7 @@ app.post("/updateStreak", async (req, res) => {
       const lbdata = await leaderboardModel.find().sort({ totalPoints: -1 });
       const ops = lbdata.map((user, index) => ({
         updateOne: {
-          filter: { _id: user.id },
+          filter: { _id: user._id },
           update: { $set: { rank: index + 1 } },
         },
       }));
