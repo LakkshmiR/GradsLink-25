@@ -411,7 +411,7 @@ app.delete("/delete/:id", async (req, res) => {
     }
     await ConnectModel.findByIdAndDelete({ _id: id });
     await leaderboardModel.updateOne({ name: loggedinuser }, { $inc: { numJobPosts: -1 } });
-    return res.json({ message: "delete done success" });
+    return res.json({ message: "Deleted Successfully!!!" });
   } catch (err) {
     res.json({ error: err.message });
   }
@@ -570,7 +570,7 @@ app.post("/createlb", async (req, res) => {
         referrals: 0,
         totalPoints: 0 * 10 + 1 * 5 + 0 * 25,
         email: loggedinEmail,
-        openDate: "2025-12-02",
+        openDate: new Date(),
       });
       //LEADERBOARDMODEL RANK
       const lbdata = await leaderboardModel.find().sort({ totalPoints: -1 });
@@ -697,6 +697,10 @@ app.post("/updatereferrallb", async (req, res) => {
   }
 });
 
+//health
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 //port-lh
 // app.listen(3000, () => {
 //   console.log("Server is Running");
