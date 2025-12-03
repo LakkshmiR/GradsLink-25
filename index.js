@@ -572,6 +572,16 @@ app.post("/createlb", async (req, res) => {
         email: loggedinEmail,
         openDate: "2025-12-02",
       });
+      //LEADERBOARDMODEL RANK
+      const lbdata = await leaderboardModel.find().sort({ totalPoints: -1 });
+      const ops = lbdata.map((user, index) => ({
+        updateOne: {
+          filter: { _id: user.id },
+          update: { $set: { rank: index + 1 } },
+        },
+      }));
+      await leaderboardModel.bulkWrite(ops);
+
       return res.json({ message: "created lb success" });
     }
 
