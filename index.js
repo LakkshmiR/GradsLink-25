@@ -400,8 +400,9 @@ app.delete("/delete/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const loggedinuser = req.body.loggedinuser;
-    const jobdata = ConnectModel.findOne({ postedBy: loggedinuser });
-    const lbdata = leaderboardModel.findOne({ name: loggedinuser });
+    const email = req.body.email;
+    const jobdata = await ConnectModel.findOne({ postedBy: loggedinuser });
+    const lbdata = await leaderboardModel.findOne({ email: email });
 
     if (!jobdata) {
       return res.json({ message: "no jobdata" });
@@ -410,16 +411,16 @@ app.delete("/delete/:id", async (req, res) => {
       return res.json({ message: "no lb data" });
     }
     await ConnectModel.findByIdAndDelete({ _id: id });
-    await leaderboardModel.updateOne({ name: loggedinuser }, { $inc: { numJobPosts: -1 } });
+    // await leaderboardModel.updateOne({ email: email }, { $inc: { numJobPosts: -1 } });
 
     //totalpoints update
     await leaderboardModel.updateOne({ email: email }, [
       {
         $set: {
-          numJobPosts: { $sub: ["$numJobPosts", 1] },
+          numJobPosts: { $subtract: ["$numJobPosts", 1] },
           totalPoints: {
             $add: [
-              { $multiply: [{ $sub: ["$numJobPosts", 1] }, 10] },
+              { $multiply: [{ $subtract: ["$numJobPosts", 1] }, 10] },
               { $multiply: ["$dailyStreak", 5] },
               { $multiply: ["$referrals", 25] },
             ],
