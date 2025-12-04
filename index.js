@@ -462,7 +462,7 @@ app.get("/getrefcode", async (req, res) => {
     }
     if (regdata) {
       const referralcode = regdata.referralCode;
-      return res.json(referralcode);
+      return res.json({ referralcode: referralcode });
     }
   } catch (err) {
     return res.json({ error: err.message });
