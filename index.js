@@ -351,6 +351,7 @@ app.post("/add", async (req, res) => {
     const link = req.body.link;
     const postedBy = req.body.postedBy;
     const email = req.body.email;
+    const token = req.body.token;
     console.log(companyName);
 
     await ConnectModel.create({
@@ -361,7 +362,7 @@ app.post("/add", async (req, res) => {
       postedBy: postedBy,
     });
 
-    await leaderboardModel.updateOne({ email: email }, [
+    await leaderboardModel.updateOne({ token: token }, [
       {
         $set: {
           numJobPosts: { $add: ["$numJobPosts", 1] },
@@ -401,8 +402,9 @@ app.delete("/delete/:id", async (req, res) => {
     const { id } = req.params;
     const loggedinuser = req.body.loggedinuser;
     const email = req.body.email;
+    const token = req.body.token;
     const jobdata = await ConnectModel.findOne({ postedBy: loggedinuser });
-    const lbdata = await leaderboardModel.findOne({ email: email });
+    const lbdata = await leaderboardModel.findOne({ token: token });
 
     if (!jobdata) {
       return res.json({ message: "no jobdata" });
@@ -414,7 +416,7 @@ app.delete("/delete/:id", async (req, res) => {
     // await leaderboardModel.updateOne({ email: email }, { $inc: { numJobPosts: -1 } });
 
     //totalpoints update
-    await leaderboardModel.updateOne({ email: email }, [
+    await leaderboardModel.updateOne({ token: token }, [
       {
         $set: {
           numJobPosts: { $subtract: ["$numJobPosts", 1] },
