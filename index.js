@@ -579,6 +579,7 @@ app.post("/createlb", async (req, res) => {
   try {
     const loggedinEmail = req.body.loggedinEmail;
     const name = req.body.loggedinuser;
+    const token = req.body.token;
     const lbdata = await leaderboardModel.findOne({ email: loggedinEmail });
 
     if (!lbdata) {
@@ -590,6 +591,7 @@ app.post("/createlb", async (req, res) => {
         referrals: 0,
         totalPoints: 0 * 10 + 1 * 5 + 0 * 25,
         email: loggedinEmail,
+        token: token,
         openDate: new Date(),
       });
       //LEADERBOARDMODEL RANK
