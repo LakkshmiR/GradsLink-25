@@ -318,7 +318,7 @@ const leaderboardModel = require("./Models/leaderboard");
 const { OAuth2Client } = require("google-auth-library");
 const app = express();
 //cors lh
-app.use(cors());
+// app.use(cors());
 
 //cors render
 app.use(
@@ -331,7 +331,7 @@ app.use(
 app.use(express.json());
 
 //mdb lh
-mongoose.connect("mongodb://127.0.0.1:27017/connectdb");
+// mongoose.connect("mongodb://127.0.0.1:27017/connectdb");
 
 //mdb render
 mongoose
