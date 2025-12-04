@@ -411,7 +411,7 @@ app.delete("/delete/:id", async (req, res) => {
       return res.json({ message: "no lb data" });
     }
     await ConnectModel.findOneAndDelete({ _id: id, postedBy: loggedinuser });
-    await leaderboardModel.updateOne({ email: email }, { $inc: { numJobPosts: -1 } });
+    // await leaderboardModel.updateOne({ email: email }, { $inc: { numJobPosts: -1 } });
 
     //totalpoints update
     await leaderboardModel.updateOne({ email: email }, [
