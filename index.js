@@ -414,20 +414,20 @@ app.delete("/delete/:id", async (req, res) => {
     await leaderboardModel.updateOne({ email: email }, { $inc: { numJobPosts: -1 } });
 
     //totalpoints update
-    // await leaderboardModel.updateOne({ email: email }, [
-    //   {
-    //     $set: {
-    //       numJobPosts: { $subtract: ["$numJobPosts", 1] },
-    //       totalPoints: {
-    //         $add: [
-    //           { $multiply: [{ $subtract: ["$numJobPosts", 1] }, 10] },
-    //           { $multiply: ["$dailyStreak", 5] },
-    //           { $multiply: ["$referrals", 25] },
-    //         ],
-    //       },
-    //     },
-    //   },
-    // ]);
+    await leaderboardModel.updateOne({ email: email }, [
+      {
+        $set: {
+          numJobPosts: { $subtract: ["$numJobPosts", 1] },
+          totalPoints: {
+            $add: [
+              { $multiply: [{ $subtract: ["$numJobPosts", 1] }, 10] },
+              { $multiply: ["$dailyStreak", 5] },
+              { $multiply: ["$referrals", 25] },
+            ],
+          },
+        },
+      },
+    ]);
 
     return res.json({ message: "Deleted Successfully!!!" });
   } catch (err) {
