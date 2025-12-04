@@ -411,6 +411,23 @@ app.delete("/delete/:id", async (req, res) => {
     }
     await ConnectModel.findByIdAndDelete({ _id: id });
     await leaderboardModel.updateOne({ name: loggedinuser }, { $inc: { numJobPosts: -1 } });
+
+    //totalpoints update
+    await leaderboardModel.updateOne({ email: email }, [
+      {
+        $set: {
+          numJobPosts: { $sub: ["$numJobPosts", 1] },
+          totalPoints: {
+            $add: [
+              { $multiply: [{ $sub: ["$numJobPosts", 1] }, 10] },
+              { $multiply: ["$dailyStreak", 5] },
+              { $multiply: ["$referrals", 25] },
+            ],
+          },
+        },
+      },
+    ]);
+
     return res.json({ message: "Deleted Successfully!!!" });
   } catch (err) {
     res.json({ error: err.message });
