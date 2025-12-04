@@ -8,6 +8,7 @@ const leaderboardSchema = new mongoose.Schema({
   totalPoints: { type: Number, default: 0 },
   email: { type: String, unique: true, required: true },
   openDate: { type: Date, default: null },
+  token: String,
 });
 const leaderboardModel = mongoose.model("leaderboard", leaderboardSchema);
 module.exports = leaderboardModel;

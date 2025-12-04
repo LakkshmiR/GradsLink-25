@@ -580,7 +580,7 @@ app.post("/createlb", async (req, res) => {
     const loggedinEmail = req.body.loggedinEmail;
     const name = req.body.loggedinuser;
     const token = req.body.token;
-    const lbdata = await leaderboardModel.findOne({ email: loggedinEmail });
+    const lbdata = await leaderboardModel.findOne({ token: token });
 
     if (!lbdata) {
       await leaderboardModel.create({
