@@ -318,7 +318,7 @@ const leaderboardModel = require("./Models/leaderboard");
 const { OAuth2Client } = require("google-auth-library");
 const app = express();
 //cors lh
-// app.use(cors());
+app.use(cors());
 
 //cors render
 app.use(
@@ -331,7 +331,7 @@ app.use(
 app.use(express.json());
 
 //mdb lh
-// mongoose.connect("mongodb://127.0.0.1:27017/connectdb");
+mongoose.connect("mongodb://127.0.0.1:27017/connectdb");
 
 //mdb render
 mongoose
@@ -351,7 +351,6 @@ app.post("/add", async (req, res) => {
     const link = req.body.link;
     const postedBy = req.body.postedBy;
     const email = req.body.email;
-    const token = req.body.token;
     console.log(companyName);
 
     await ConnectModel.create({
@@ -362,7 +361,7 @@ app.post("/add", async (req, res) => {
       postedBy: postedBy,
     });
 
-    await leaderboardModel.updateOne({ token: token }, [
+    await leaderboardModel.updateOne({ email: email }, [
       {
         $set: {
           numJobPosts: { $add: ["$numJobPosts", 1] },
@@ -402,9 +401,8 @@ app.delete("/delete/:id", async (req, res) => {
     const { id } = req.params;
     const loggedinuser = req.body.loggedinuser;
     const email = req.body.email;
-    const token = req.body.token;
     const jobdata = await ConnectModel.findOne({ postedBy: loggedinuser });
-    const lbdata = await leaderboardModel.findOne({ token: token });
+    const lbdata = await leaderboardModel.findOne({ email: email });
 
     if (!jobdata) {
       return res.json({ message: "no jobdata" });
@@ -413,23 +411,23 @@ app.delete("/delete/:id", async (req, res) => {
       return res.json({ message: "no lb data" });
     }
     await ConnectModel.findByIdAndDelete({ _id: id });
-    // await leaderboardModel.updateOne({ email: email }, { $inc: { numJobPosts: -1 } });
+    await leaderboardModel.updateOne({ email: email }, { $inc: { numJobPosts: -1 } });
 
     //totalpoints update
-    await leaderboardModel.updateOne({ token: token }, [
-      {
-        $set: {
-          numJobPosts: { $subtract: ["$numJobPosts", 1] },
-          totalPoints: {
-            $add: [
-              { $multiply: [{ $subtract: ["$numJobPosts", 1] }, 10] },
-              { $multiply: ["$dailyStreak", 5] },
-              { $multiply: ["$referrals", 25] },
-            ],
-          },
-        },
-      },
-    ]);
+    // await leaderboardModel.updateOne({ email: email }, [
+    //   {
+    //     $set: {
+    //       numJobPosts: { $subtract: ["$numJobPosts", 1] },
+    //       totalPoints: {
+    //         $add: [
+    //           { $multiply: [{ $subtract: ["$numJobPosts", 1] }, 10] },
+    //           { $multiply: ["$dailyStreak", 5] },
+    //           { $multiply: ["$referrals", 25] },
+    //         ],
+    //       },
+    //     },
+    //   },
+    // ]);
 
     return res.json({ message: "Deleted Successfully!!!" });
   } catch (err) {
@@ -579,8 +577,7 @@ app.post("/createlb", async (req, res) => {
   try {
     const loggedinEmail = req.body.loggedinEmail;
     const name = req.body.loggedinuser;
-    const token = req.body.token;
-    const lbdata = await leaderboardModel.findOne({ token: token });
+    const lbdata = await leaderboardModel.findOne({ email: loggedinEmail });
 
     if (!lbdata) {
       await leaderboardModel.create({
@@ -591,7 +588,6 @@ app.post("/createlb", async (req, res) => {
         referrals: 0,
         totalPoints: 0 * 10 + 1 * 5 + 0 * 25,
         email: loggedinEmail,
-        token: token,
         openDate: new Date(),
       });
       //LEADERBOARDMODEL RANK
