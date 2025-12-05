@@ -318,16 +318,16 @@ const leaderboardModel = require("./Models/leaderboard");
 const { OAuth2Client } = require("google-auth-library");
 const app = express();
 //cors lh
-app.use(cors());
+// app.use(cors());
 
 //cors render
-// app.use(
-//   cors({
-//     origin: "https://grads-link-frontend.vercel.app",
-//     methods: ["GET", "POST", "PUT", "DELETE"],
-//     credentials: true,
-//   })
-// );
+app.use(
+  cors({
+    origin: "https://grads-link-frontend.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 //mdb lh
