@@ -5,6 +5,7 @@ const RegisterSchema = new mongoose.Schema({
   password: String,
   passedout: String,
   referralCode: String,
+  token: String,
 });
 const RegisterModel = mongoose.model("register", RegisterSchema);
 module.exports = RegisterModel;

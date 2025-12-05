@@ -318,16 +318,16 @@ const leaderboardModel = require("./Models/leaderboard");
 const { OAuth2Client } = require("google-auth-library");
 const app = express();
 //cors lh
-// app.use(cors());
+app.use(cors());
 
 //cors render
-app.use(
-  cors({
-    origin: "https://grads-link-frontend.vercel.app",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: "https://grads-link-frontend.vercel.app",
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     credentials: true,
+//   })
+// );
 app.use(express.json());
 
 //mdb lh
@@ -429,6 +429,16 @@ app.delete("/delete/:id", async (req, res) => {
       },
     ]);
 
+    //LEADERBOARDMODEL RANK
+    const lbdatarank = await leaderboardModel.find().sort({ totalPoints: -1 });
+    const ops = lbdatarank.map((user, index) => ({
+      updateOne: {
+        filter: { _id: user.id },
+        update: { $set: { rank: index + 1 } },
+      },
+    }));
+    await leaderboardModel.bulkWrite(ops);
+
     return res.json({ message: "Deleted Successfully!!!" });
   } catch (err) {
     res.json({ error: err.message });
@@ -501,6 +511,7 @@ app.post("/login", (req, res) => {
             return res.json("Wrong password");
           }
           const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+
           return res.json({
             message: "Login success",
             name: user.name,
