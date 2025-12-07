@@ -318,29 +318,29 @@ const leaderboardModel = require("./Models/leaderboard");
 const { OAuth2Client } = require("google-auth-library");
 const app = express();
 //cors lh
-// app.use(cors());
+app.use(cors());
 
 //cors render
-app.use(
-  cors({
-    origin: "https://grads-link-frontend.vercel.app",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: "https://grads-link-frontend.vercel.app",
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     credentials: true,
+//   })
+// );
 app.use(express.json());
 
 //mdb lh
-// mongoose.connect("mongodb://127.0.0.1:27017/connectdb");
+mongoose.connect("mongodb://127.0.0.1:27017/connectdb");
 
 //mdb render
-mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("Mongodb Connected"))
-  .catch((err) => console.log(err));
+// mongoose
+//   .connect(process.env.MONGO_URI, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//   })
+//   .then(() => console.log("Mongodb Connected"))
+//   .catch((err) => console.log(err));
 
 //post
 app.post("/add", async (req, res) => {
@@ -553,36 +553,55 @@ app.get("/", (req, res) => {
 });
 
 //google login
+// const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+// app.post("/google", async (req, res) => {
+//   const credential = req.body.credential;
+
+//   //VERIFY TOKEN
+//   //await - waits for google responds
+//   const ticket = await client.verifyIdToken({
+//     idToken: credential,
+//     audience: process.env.GOOGLE_CLIENT_ID,
+//   });
+//   //to get user info from gg token
+//   const payload = ticket.getPayload();
+//   const { sub, email, name, picture } = payload;
+
+//   RegisterModel.findOne({ email })
+//     .then((user) => {
+//       if (!user) {
+//         RegisterModel.create({ name: name, email: email, sub: sub, picture: picture });
+//       }
+//       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+//       res.json({
+//         message: "Login Success",
+//         name: user.name,
+//         email: user.email,
+//         token,
+//       });
+//     })
+//     .catch((err) => res.json(err));
+// });
+//google login
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-app.post("/google", async (req, res) => {
+app.post("/google", (req, res) => {
   const credential = req.body.credential;
-
-  //VERIFY TOKEN
-  //await - waits for google responds
-  const ticket = await client.verifyIdToken({
-    idToken: credential,
-    audience: process.env.GOOGLE_CLIENT_ID,
-  });
-  //to get user info from gg token
-  const payload = ticket.getPayload();
-  const { sub, email, name, picture } = payload;
-
-  RegisterModel.findOne({ email })
-    .then((user) => {
-      if (!user) {
-        RegisterModel.create({ name: name, email: email, sub: sub, picture: picture });
-      }
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "30d" });
-      res.json({
-        message: "Login Success",
-        name: user.name,
-        email: user.email,
-        token,
-      });
-    })
-    .catch((err) => res.json(err));
+  try{
+    const ticket=await client.verifyIdToken({idToken:credential,audience:process.env.GOOGLE_CLIENT_ID});
+    const payload=ticket.getPayload();
+    const {sub,email,name,picture}=payload();
+    let user=await RegisterModel.findOne({email});
+    if(!user){
+      user=await RegisterModel.create({name:name,email:email,sub:sub,picture:picture});
+    }
+    const token=jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:"30d"});
+    res.json({message:"Login Success",name:user.name,email:user.email,token});
+  }
+  catch(err){
+    console.log(err);
+    res.json({error:"Google login error"});
+  }
 });
-
 //LEADERBOARD CREATE FROM JOBSPAGE
 app.post("/createlb", async (req, res) => {
   try {
@@ -731,15 +750,15 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
 //port-lh
-// app.listen(3000, () => {
-//   console.log("Server is Running");
-// });
-
-//port-render
-app.get("/", (req, res) => {
-  res.send("Server is running!");
-});
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(3000, () => {
   console.log("Server is Running");
 });
+
+//port-render
+// app.get("/", (req, res) => {
+//   res.send("Server is running!");
+// });
+// const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => {
+//   console.log("Server is Running");
+// });
