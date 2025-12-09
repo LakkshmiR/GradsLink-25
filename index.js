@@ -592,7 +592,7 @@ app.post("/google", async (req, res) => {
       audience: process.env.GOOGLE_CLIENT_ID,
     });
     const payload = ticket.getPayload();
-    const { sub, email, name, picture } = payload();
+    const { sub, email, name, picture } = payload;
     let user = await RegisterModel.findOne({ email });
     if (!user) {
       user = await RegisterModel.create({ name: name, email: email, sub: sub, picture: picture });
