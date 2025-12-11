@@ -359,6 +359,7 @@ app.post("/add", async (req, res) => {
       experience: experience,
       link: link,
       postedBy: postedBy,
+      email: email,
     });
 
     await leaderboardModel.updateOne({ email: email }, [

@@ -11,6 +11,7 @@ const ConnectSchema = new mongoose.Schema({
   postedBy: String,
   numJobPosts: { type: Number, default: 0 },
   openDate: { type: Date, default: null },
+  email: String,
 });
 const ConnectModel = mongoose.model("jobs", ConnectSchema);
 module.exports = ConnectModel;
