@@ -342,6 +342,15 @@ mongoose
   .then(() => console.log("Mongodb Connected"))
   .catch((err) => console.log(err));
 
+// app.use((req, res, next) => {
+//   console.log("➡️", req.method, req.url);
+
+//   res.on("finish", () => {
+//     console.log("✅", req.method, req.url, res.statusCode);
+//   });
+
+//   next();
+// });
 //post
 app.post("/add", async (req, res) => {
   try {
@@ -554,36 +563,6 @@ app.get("/", (req, res) => {
 });
 
 //google login
-// const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-// app.post("/google", async (req, res) => {
-//   const credential = req.body.credential;
-
-//   //VERIFY TOKEN
-//   //await - waits for google responds
-//   const ticket = await client.verifyIdToken({
-//     idToken: credential,
-//     audience: process.env.GOOGLE_CLIENT_ID,
-//   });
-//   //to get user info from gg token
-//   const payload = ticket.getPayload();
-//   const { sub, email, name, picture } = payload;
-
-//   RegisterModel.findOne({ email })
-//     .then((user) => {
-//       if (!user) {
-//         RegisterModel.create({ name: name, email: email, sub: sub, picture: picture });
-//       }
-//       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "30d" });
-//       res.json({
-//         message: "Login Success",
-//         name: user.name,
-//         email: user.email,
-//         token,
-//       });
-//     })
-//     .catch((err) => res.json(err));
-// });
-//google login
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 app.post("/google", async (req, res) => {
   const credential = req.body.credential;
@@ -642,15 +621,24 @@ app.post("/createlb", async (req, res) => {
   }
 });
 //LEADERBOARD GET FROM DB - LB.JSX
+// app.get("/getlb", async (req, res) => {
+//   await leaderboardModel
+//     .find()
+//     .sort({ rank: 1 })
+//     .then((result) => res.json(result))
+//     .catch((err) => res.json(err));
+// });
 app.get("/getlb", async (req, res) => {
-  await leaderboardModel
-    .find()
-    .sort({ rank: 1 })
-    .then((result) => res.json(result))
-    .catch((err) => res.json(err));
+  try {
+    const result = await leaderboardModel.find().sort({ rank: 1 });
+    return res.status(200).json(result);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Failed to fetch leaderboard" });
+  }
 });
 
-//LEADERBOARD UPDATE STREAK
+// //LEADERBOARD UPDATE STREAK
 app.post("/updateStreak", async (req, res) => {
   try {
     const postedBy = req.body.loggedinuser;
@@ -675,6 +663,9 @@ app.post("/updateStreak", async (req, res) => {
       month: "2-digit",
       year: "numeric",
     });
+    if (today === previousdateString) {
+      return res.json({ message: "streak already updated today" });
+    }
     if (today !== previousdateString) {
       await leaderboardModel.updateOne(
         { email: loggedinEmail },
@@ -696,8 +687,8 @@ app.post("/updateStreak", async (req, res) => {
         },
       ]);
       //LEADERBOARDMODEL RANK
-      const lbdata = await leaderboardModel.find().sort({ totalPoints: -1 });
-      const ops = lbdata.map((user, index) => ({
+      const allusers = await leaderboardModel.find().sort({ totalPoints: -1 });
+      const ops = allusers.map((user, index) => ({
         updateOne: {
           filter: { _id: user._id },
           update: { $set: { rank: index + 1 } },
@@ -710,6 +701,7 @@ app.post("/updateStreak", async (req, res) => {
     return res.json({ message: err.message });
   }
 });
+
 //LEADERBOARD UPDATE REFERRAL
 app.post("/updatereferrallb", async (req, res) => {
   try {
