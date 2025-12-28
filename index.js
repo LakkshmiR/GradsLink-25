@@ -314,6 +314,8 @@ require("dotenv").config();
 const ConnectModel = require("./Models/post");
 const RegisterModel = require("./Models/user");
 const leaderboardModel = require("./Models/leaderboard");
+const PostcheckinModel = require("./Models/postCheckin");
+const PostCommentModel = require("./Models/postComment");
 //import for google
 const { OAuth2Client } = require("google-auth-library");
 const app = express();
@@ -739,7 +741,95 @@ app.post("/updatereferrallb", async (req, res) => {
     return res.json({ error: err.message });
   }
 });
+///////////////////////////////JOURNEY CODE//////////////////////////////
+//post Check in
+app.post("/postCheckin", async (req, res) => {
+  try {
+    const postTitle = req.body.postTitle;
+    const postContent = req.body.postContent;
+    const email = req.body.email;
+    let name = req.body.name;
 
+    await PostcheckinModel.create({
+      name: name,
+      postTitle: postTitle,
+      postContent: postContent,
+      email: email,
+    });
+    return res.json({ message: "postcheckin created successfully!!!" });
+  } catch (err) {
+    return res.json({ error: err.message });
+  }
+});
+//get checkin data
+app.get("/getCheckinData", async (req, res) => {
+  try {
+    const checkinData = await PostcheckinModel.find();
+    if (!checkinData) {
+      return res.json({ message: "checkin data not found" });
+    }
+    return res.json(checkinData);
+  } catch (err) {
+    return res.json({ error: err.message });
+  }
+});
+//post comment data
+app.post("/postComment/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const comments = req.body.comments;
+    const email = req.body.email;
+    const name = req.body.name;
+    await PostCommentModel.create({ postid: id, comment: comments, email: email, name: name });
+    return res.json({ message: "comment Data posted successfully!!!" });
+  } catch (err) {
+    return res.json({ error: err.message });
+  }
+});
+//get comment
+app.get("/getComment/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const commentData = await PostCommentModel.find({ postid: id });
+    if (!commentData) {
+      return res.json({ message: "comment Data not found" });
+    }
+    return res.json(commentData);
+  } catch (err) {
+    return res.json({ error: err.message });
+  }
+});
+
+//DELETE POSTED JOURNEY
+app.delete("/postDelete/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const email = req.body.email;
+    const postData = await PostcheckinModel.findOne({ email: email });
+    if (!postData) {
+      return res.json({ message: "post data not found" });
+    }
+    await PostcheckinModel.findByIdAndDelete({ _id: id });
+    return res.json({ message: "Post Deleted Successfully" });
+  } catch (err) {
+    return res.json({ error: err.message });
+  }
+});
+//DELETE POSTED COMMENT
+app.delete("/commentDelete/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const email = req.body.email;
+    const commentData = await PostCommentModel.findOne({ email: email });
+    if (!commentData) {
+      return res.json({ message: "comment data not found" });
+    }
+    await PostCommentModel.findByIdAndDelete({ _id: id });
+    return res.json({ message: "Comment Deleted Successfully!!!" });
+  } catch (err) {
+    return res.json({ error: err.message });
+  }
+});
 //health
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
