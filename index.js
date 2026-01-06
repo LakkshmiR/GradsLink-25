@@ -322,7 +322,7 @@ const app = express();
 //cors lh
 // app.use(cors());
 
-//cors render
+// cors render
 app.use(
   cors({
     origin: "https://grads-link-frontend.vercel.app",
@@ -756,6 +756,7 @@ app.post("/postCheckin", async (req, res) => {
       postContent: postContent,
       email: email,
     });
+    console.log(postTitle);
     return res.json({ message: "postcheckin created successfully!!!" });
   } catch (err) {
     return res.json({ error: err.message });
